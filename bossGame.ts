@@ -3,6 +3,7 @@ import {plusVec, rotateVec, multiVec, pointDiff, bounce} from "./vectorMath"
 import { makePlayers, playerMovement, addPlayerShadows, addShurikenShadows, updateShadows } from "./Players";
 import {Texts} from './texts';
 
+
 	var fullSize = 800;
 	var halfSize = fullSize / 2;
 	var radius = ( halfSize / 8) * 7;
@@ -162,7 +163,7 @@ import {Texts} from './texts';
 			if (bounced == false)
 			{
 				bounced = true;
-				bounce(shurikenSpeed, players[i].position, bigBoss.position);
+				bounce(shurikenSpeed, [players[i].pos.x, players[i].pos.y], [bigBoss.pos.x, bigBoss.pos.y]);
 			}
 		});
 	}
@@ -220,8 +221,8 @@ import {Texts} from './texts';
 
 	function moveShuriken()
 	{
-		shuriken.position.x += shurikenSpeed[0];
-		shuriken.position.y += shurikenSpeed[1];
+		shuriken.pos.x += shurikenSpeed[0];
+		shuriken.pos.y += shurikenSpeed[1];
 		if (rotating == true)
 		{
 			shurikenSpeed = 
@@ -231,17 +232,19 @@ import {Texts} from './texts';
 
 	function resetShuriken()
 	{
-		var tmp: number[] = shurikenSpeed;
+		var tmpSpeed: number[] = shurikenSpeed;
+		var tmpPos: number[];
 		shurikenSpeed = [0,0];
-		shuriken.position = plusVec(bigBoss.position, multiVec(tmp, 18));
+		tmpPos = plusVec([bigBoss.pos.x, bigBoss.pos.y], multiVec(tmpSpeed, 18))
+		shuriken.pos = new Vector(tmpPos[0], tmpPos[1]);
 		oob = false;
-		setTimeout(() =>{{ shurikenSpeed = tmp }}, 1000);
+		setTimeout(() =>{{ shurikenSpeed = tmpSpeed }}, 1000);
 	}
 
 	function checkOutOfBounds(): void
 	{
-		if ((shuriken.position.x < 0) || (shuriken.position.x > 800) 
-			|| (shuriken.position.y < 0) || (shuriken.position.y > 800))
+		if ((shuriken.pos.x < 0) || (shuriken.pos.x > 800) 
+			|| (shuriken.pos.y < 0) || (shuriken.pos.y > 800))
 		{
 			if (oob == false)
 			{
@@ -251,7 +254,7 @@ import {Texts} from './texts';
 				texts.lives.text = lives.toString();
 				if (playerLives == 0)
 				{
-					shuriken.position = [400,600];
+					shuriken.pos = new Vector(400,600);
 					shurikenSpeed = [0,0];
 					playersLose();
 				}
@@ -271,24 +274,24 @@ import {Texts} from './texts';
 	{
 		bigBoss.on("collisionstart", () => 
 		{
-			var distance = pointDiff(bigBoss.position, shuriken.position);
-			if ((distance <= bigBoss.radius) && (bossHit == true) && rotating == false)
+			var distance = pointDiff([bigBoss.pos.x, bigBoss.pos.y], [shuriken.pos.x, shuriken.pos.y]);
+			if ((distance <= 80) && (bossHit == true) && rotating == false)
 			{
 				shuriken.rotation = 33;
 				rotating = true;
-				shuriken.position = [400,400];
+				shuriken.pos = new Vector(400,400);
 				setTimeout(() =>{{ shuriken.rotation = 0 }}, (Math.random()+1) * 1000);
 			}
-			if ((distance >= bigBoss.radius) && (rotating == true))
+			if ((distance >= 80) && (rotating == true))
 			{
 				rotating = false;
 				setTimeout(() => {bossHit = false },200);
 				setBossColor(2);
 			}
-			if ((distance <= bigBoss.radius) && (bossHit == false))
+			if ((distance <= 80) && (bossHit == false))
 			{
 				bossHit = true;
-				shurikenSpeed = bounce(shurikenSpeed, bigBoss.position, shuriken.position);
+				shurikenSpeed = bounce(shurikenSpeed, [bigBoss.pos.x, bigBoss.pos.y], [shuriken.pos.x, shuriken.pos.y]);
 				dmgCounter++;
 				if (dmgCounter == 5)
 				{
@@ -297,4 +300,4 @@ import {Texts} from './texts';
 				}
 			}
 		});
-	}
+}
