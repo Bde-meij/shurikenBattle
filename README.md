@@ -22,3 +22,4 @@ and use them to bounce the shuriken towards the middle
 to restart the game refresh the page
 
 have fun!
+![image](https://github.com/user-attachments/assets/ca6bcbae-a5e7-4eba-af21-cb92ed2f48fb)
